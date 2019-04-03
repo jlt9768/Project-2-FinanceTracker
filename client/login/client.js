@@ -20,12 +20,12 @@ const handleSignup = (e) => {
     $("#domoMessage").animate({width:'hide'}, 350);
     
     if($("#user").val() == '' || $("#pass").val() == '' || $("#pass2").val() == ''){
-        handleError("RAWR! All fields are required");
+        handleError("All fields are required");
         return false;
     }
     
     if($("#pass").val() !== $("#pass2").val()){
-        handleError("RAWR! Passwords do not match");
+        handleError("Passwords do not match");
         return false;
     }
     
@@ -60,6 +60,9 @@ const SignupWindow = (props) => {
             className="mainForm"
         >
         
+            
+        <label htmlFor="email">Email:</label>
+        <input id = "email" type = "text" name = "email" placeholder = "email"></input>
         <label htmlFor="username">Username: </label>
         <input id = "user" type="text" name="username" placeholder = "username"></input>
         <label htmlFor="pass">Password: </label>

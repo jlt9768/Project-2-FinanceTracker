@@ -1,17 +1,17 @@
 "use strict";
 
-var handleDomo = function handleDomo(e) {
+var handleFinance = function handleFinance(e) {
     e.preventDefault();
 
     $("#domoMessage").animate({ width: 'hide' }, 350);
 
-    if ($("#domoName").val() == '' || $("#domoAge").val() == '' || $("#domoWeight").val() == '') {
-        handleError("RAWR! All fields are required");
+    if ($("#financeDate").val() == '' || $("#financeItem").val() == '') {
+        handleError("All fields are required");
         return false;
     };
 
-    sendAjax('POST', $("#domoForm").attr("action"), $("#domoForm").serialize(), function () {
-        loadDomosFromServer();
+    sendAjax('POST', $("#financeForm").attr("action"), $("#financeForm").serialize(), function () {
+        loadFinancesFromServer();
     });
 
     return false;
@@ -33,82 +33,105 @@ var Filter = function Filter(props) {
     );
 };
 
-var DomoForm = function DomoForm(props) {
+var FinanceForm = function FinanceForm(props) {
     return React.createElement(
         "form",
-        { id: "domoForm", name: "domoForm",
-            onSubmit: handleDomo,
-            action: "/maker",
+        { id: "financeForm", name: "financeForm",
+            onSubmit: handleFinance,
+            action: "/finance",
             method: "POST",
-            className: "domoForm"
+            className: "financeForm"
         },
         React.createElement(
             "label",
-            { htmlFor: "name" },
-            "Name: "
+            { htmlFor: "date" },
+            "Date: "
         ),
-        React.createElement("input", { id: "domoName", type: "text", name: "name", placeholder: "Domo Name" }),
+        React.createElement("input", { id: "financeDate", type: "text", name: "date", placeholder: "Date of purchase" }),
         React.createElement(
             "label",
-            { htmlFor: "age" },
-            "Age: "
+            { htmlFor: "item" },
+            "Item: "
         ),
-        React.createElement("input", { id: "domoAge", type: "text", name: "age", placeholder: "Domo Age" }),
+        React.createElement("input", { id: "financeItem", type: "text", name: "item", placeholder: "Name of item" }),
         React.createElement(
             "label",
-            { htmlFor: "weight" },
-            "Weight: "
+            { htmlFor: "type" },
+            "Type: "
         ),
-        React.createElement("input", { id: "domoWeight", type: "text", name: "weight", placeholder: "Domo Weight" }),
+        React.createElement(
+            "select",
+            { id: "financeType", name: "type" },
+            React.createElement(
+                "option",
+                { value: "other", selected: true },
+                "Other"
+            ),
+            React.createElement(
+                "option",
+                { value: "monthly" },
+                "Monthly"
+            ),
+            React.createElement(
+                "option",
+                { value: "food" },
+                "Food"
+            ),
+            React.createElement(
+                "option",
+                { value: "clothing" },
+                "Clothing"
+            )
+        ),
         React.createElement("input", { type: "hidden", name: "_csrf", value: props.csrf }),
-        React.createElement("input", { className: "makeDomoSubmit", type: "submit", value: "Make Domo" })
+        React.createElement("input", { className: "makeFinanceSubmit", type: "submit", value: "Add Finance" })
     );
 };
 
-var DomoList = function DomoList(props) {
-    if (props.domos.length === 0) {
+var FinanceList = function FinanceList(props) {
+    if (props.finances.length === 0) {
         return React.createElement(
             "div",
-            { className: "domoList" },
+            { className: "financeList" },
             React.createElement(
                 "h3",
-                { className: "emptyDomo" },
-                "No Domos Yet"
+                { className: "emptyFinance" },
+                "No Finances Yet"
             )
         );
     };
 
-    var domoNodes = props.domos.map(function (domo) {
+    var financeNodes = props.finances.map(function (finance) {
         console.log();
         return React.createElement(
             "div",
-            { key: domo._id, className: "domo" },
+            { key: finance._id, className: "finance" },
             React.createElement("img", { src: "/assets/img/domoface.jpeg", alt: "domo face", className: "domoFace" }),
             React.createElement(
                 "h3",
-                { className: "domoName" },
-                "Name: ",
-                domo.name
+                { className: "financeDate" },
+                "Date: ",
+                finance.date
             ),
             React.createElement(
                 "h3",
-                { className: "domoAge" },
-                " Age: ",
-                domo.age
+                { className: "financeItem" },
+                " Item: ",
+                finance.item
             ),
             React.createElement(
                 "h3",
-                { className: "domoWeight" },
-                " Weight: ",
-                domo.weight
+                { className: "financeType" },
+                " Type: ",
+                finance.type
             )
         );
     });
 
     return React.createElement(
         "div",
-        { className: "domoList" },
-        domoNodes
+        { className: "financeList" },
+        financeNodes
     );
 };
 
@@ -125,18 +148,18 @@ var loadFilteredFromServer = function loadFilteredFromServer() {
     });
 };
 
-var loadDomosFromServer = function loadDomosFromServer() {
-    sendAjax('GET', '/getDomos', null, function (data) {
-        ReactDOM.render(React.createElement(DomoList, { domos: data.domos }), document.querySelector("#domos"));
+var loadFinancesFromServer = function loadFinancesFromServer() {
+    sendAjax('GET', '/getFinances', null, function (data) {
+        ReactDOM.render(React.createElement(FinanceList, { finances: data.finances }), document.querySelector("#finances"));
     });
 };
 
 var setup = function setup(csrf) {
-    ReactDOM.render(React.createElement(DomoForm, { csrf: csrf }), document.querySelector("#makeDomo"));
+    ReactDOM.render(React.createElement(FinanceForm, { csrf: csrf }), document.querySelector("#makeFinance"));
 
-    ReactDOM.render(React.createElement(DomoList, { domos: [] }), document.querySelector("#domos"));
+    ReactDOM.render(React.createElement(FinanceList, { finances: [] }), document.querySelector("#finances"));
     ReactDOM.render(React.createElement(Filter, null), document.querySelector("#filter"));
-    loadDomosFromServer();
+    loadFinancesFromServer();
 };
 
 var getToken = function getToken() {
