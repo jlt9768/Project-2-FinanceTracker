@@ -20,9 +20,18 @@ const handleOnChange = (e) =>{
 }
 const Filter = (props) => {
   return(
-      <div>
-        <label htmlfor="filter">Filter: </label>
-        <input id = "filterText" type="text" name = "filter" onChange={handleOnChange}/>
+      <div id="reactFilter">
+        <label class = "filterLabel" htmlfor="filter">Type Filter: </label>
+        <select id = "filterType" name = "filter" onChange={handleOnChange}>
+            <option value="" selected></option>
+            <option value="Other" >Other</option>
+            <option value="Monthly">Monthly</option>
+            <option value="Food">Food</option>
+            <option value="Clothing">Clothing</option>
+        </select>
+          &nbsp;
+        <label class = "filterLabel" htmlfor="filter">Date Filter: </label>
+        <input id = "filterDate" type="date" name="date" onChange={handleOnChange}/>
       </div>
   
   );  
@@ -38,17 +47,20 @@ const FinanceForm = (props) => {
             className="financeForm"
         >
         
-        <label htmlFor="date">Date: </label>
-        <input id = "financeDate" type="text" name="date" placeholder = "Date of purchase"/>
+        
         <label htmlFor="item">Item: </label>
         <input id = "financeItem" type="text" name="item" placeholder = "Name of item"/>
+        <label id = "amount" htmlFor="amount">Amount: </label>
+        <input id = "financeAmount" type="text" name="amount" placeholder = "Cost of item"/>
         <label htmlFor="type">Type: </label>
         <select id = "financeType" name = "type">
-            <option value="other" selected>Other</option>
-            <option value="monthly">Monthly</option>
-            <option value="food">Food</option>
-            <option value="clothing">Clothing</option>
+            <option value="Other" selected>Other</option>
+            <option value="Monthly">Monthly</option>
+            <option value="Food">Food</option>
+            <option value="Clothing">Clothing</option>
         </select>
+            <label htmlFor="date">Date: </label>
+        <input id = "financeDateInput" type="date" name="date"/>
         <input type = "hidden" name = "_csrf" value = {props.csrf}/>
         <input className = "makeFinanceSubmit" type = "submit" value = "Add Finance" />
         </form>
@@ -70,10 +82,12 @@ const FinanceList = function(props) {
             console.log();
             return(
             <div key={finance._id} className = "finance">
-                <img src="/assets/img/domoface.jpeg" alt ="domo face" className = "domoFace" />
-                <h3 className = "financeDate">Date: {finance.date}</h3>
-                <h3 className = "financeItem"> Item: {finance.item}</h3>
-                <h3 className = "financeType"> Type: {finance.type}</h3>
+                
+                <h3 className = "financeDate">Date: &nbsp;&nbsp; {finance.date}</h3>
+                <h3 className = "financeItem"> Item: &nbsp;&nbsp;   {finance.item}</h3>
+                <h3 className = "financeAmount"> Amount: &nbsp;&nbsp;    ${finance.amount}</h3>
+                <h3 className = "financeType"> Type: &nbsp;&nbsp;    {finance.type}</h3>
+                    
             </div>     
         );
          
@@ -87,16 +101,16 @@ const FinanceList = function(props) {
 };
 
 const loadFilteredFromServer = () =>{
-    sendAjax('GET', '/getDomos', null, (data) => {
-       let filtered = data.domos.filter(function(value,index,arr){
-            
-            if($("#filterText").val() === '' || value.name.toLocaleLowerCase() === $("#filterText").val().toLocaleLowerCase()){
+    sendAjax('GET', '/getFinances', null, (data) => {
+       let filtered = data.finances.filter(function(value,index,arr){
+            if(($("#filterType").val().toLocaleLowerCase() === "" || value.type.toLocaleLowerCase() === $("#filterType").val().toLocaleLowerCase()) 
+               && ($("#filterDate").val() === "" || value.date === $("#filterDate").val())){
                  return value;
-            };
+            }
        });
        
        ReactDOM.render(
-            <DomoList domos={filtered}/>, document.querySelector("#domos")
+            <FinanceList finances={filtered}/>, document.querySelector("#finances")
        ); 
     });
 }

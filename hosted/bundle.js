@@ -23,13 +23,44 @@ var handleOnChange = function handleOnChange(e) {
 var Filter = function Filter(props) {
     return React.createElement(
         "div",
-        null,
+        { id: "reactFilter" },
         React.createElement(
             "label",
-            { htmlfor: "filter" },
-            "Filter: "
+            { "class": "filterLabel", htmlfor: "filter" },
+            "Type Filter: "
         ),
-        React.createElement("input", { id: "filterText", type: "text", name: "filter", onChange: handleOnChange })
+        React.createElement(
+            "select",
+            { id: "filterType", name: "filter", onChange: handleOnChange },
+            React.createElement("option", { value: "", selected: true }),
+            React.createElement(
+                "option",
+                { value: "Other" },
+                "Other"
+            ),
+            React.createElement(
+                "option",
+                { value: "Monthly" },
+                "Monthly"
+            ),
+            React.createElement(
+                "option",
+                { value: "Food" },
+                "Food"
+            ),
+            React.createElement(
+                "option",
+                { value: "Clothing" },
+                "Clothing"
+            )
+        ),
+        "\xA0",
+        React.createElement(
+            "label",
+            { "class": "filterLabel", htmlfor: "filter" },
+            "Date Filter: "
+        ),
+        React.createElement("input", { id: "filterDate", type: "date", name: "date", onChange: handleOnChange })
     );
 };
 
@@ -44,16 +75,16 @@ var FinanceForm = function FinanceForm(props) {
         },
         React.createElement(
             "label",
-            { htmlFor: "date" },
-            "Date: "
-        ),
-        React.createElement("input", { id: "financeDate", type: "text", name: "date", placeholder: "Date of purchase" }),
-        React.createElement(
-            "label",
             { htmlFor: "item" },
             "Item: "
         ),
         React.createElement("input", { id: "financeItem", type: "text", name: "item", placeholder: "Name of item" }),
+        React.createElement(
+            "label",
+            { id: "amount", htmlFor: "amount" },
+            "Amount: "
+        ),
+        React.createElement("input", { id: "financeAmount", type: "text", name: "amount", placeholder: "Cost of item" }),
         React.createElement(
             "label",
             { htmlFor: "type" },
@@ -64,25 +95,31 @@ var FinanceForm = function FinanceForm(props) {
             { id: "financeType", name: "type" },
             React.createElement(
                 "option",
-                { value: "other", selected: true },
+                { value: "Other", selected: true },
                 "Other"
             ),
             React.createElement(
                 "option",
-                { value: "monthly" },
+                { value: "Monthly" },
                 "Monthly"
             ),
             React.createElement(
                 "option",
-                { value: "food" },
+                { value: "Food" },
                 "Food"
             ),
             React.createElement(
                 "option",
-                { value: "clothing" },
+                { value: "Clothing" },
                 "Clothing"
             )
         ),
+        React.createElement(
+            "label",
+            { htmlFor: "date" },
+            "Date: "
+        ),
+        React.createElement("input", { id: "financeDateInput", type: "date", name: "date" }),
         React.createElement("input", { type: "hidden", name: "_csrf", value: props.csrf }),
         React.createElement("input", { className: "makeFinanceSubmit", type: "submit", value: "Add Finance" })
     );
@@ -106,23 +143,28 @@ var FinanceList = function FinanceList(props) {
         return React.createElement(
             "div",
             { key: finance._id, className: "finance" },
-            React.createElement("img", { src: "/assets/img/domoface.jpeg", alt: "domo face", className: "domoFace" }),
             React.createElement(
                 "h3",
                 { className: "financeDate" },
-                "Date: ",
+                "Date: \xA0\xA0 ",
                 finance.date
             ),
             React.createElement(
                 "h3",
                 { className: "financeItem" },
-                " Item: ",
+                " Item: \xA0\xA0   ",
                 finance.item
             ),
             React.createElement(
                 "h3",
+                { className: "financeAmount" },
+                " Amount: \xA0\xA0    $",
+                finance.amount
+            ),
+            React.createElement(
+                "h3",
                 { className: "financeType" },
-                " Type: ",
+                " Type: \xA0\xA0    ",
                 finance.type
             )
         );
@@ -136,15 +178,14 @@ var FinanceList = function FinanceList(props) {
 };
 
 var loadFilteredFromServer = function loadFilteredFromServer() {
-    sendAjax('GET', '/getDomos', null, function (data) {
-        var filtered = data.domos.filter(function (value, index, arr) {
-
-            if ($("#filterText").val() === '' || value.name.toLocaleLowerCase() === $("#filterText").val().toLocaleLowerCase()) {
+    sendAjax('GET', '/getFinances', null, function (data) {
+        var filtered = data.finances.filter(function (value, index, arr) {
+            if (($("#filterType").val().toLocaleLowerCase() === "" || value.type.toLocaleLowerCase() === $("#filterType").val().toLocaleLowerCase()) && ($("#filterDate").val() === "" || value.date === $("#filterDate").val())) {
                 return value;
-            };
+            }
         });
 
-        ReactDOM.render(React.createElement(DomoList, { domos: filtered }), document.querySelector("#domos"));
+        ReactDOM.render(React.createElement(FinanceList, { finances: filtered }), document.querySelector("#finances"));
     });
 };
 
