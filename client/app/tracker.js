@@ -91,6 +91,12 @@ const Filter = (props) => {
 
 
 const FinanceForm = (props) => {
+    
+    sendAjax('GET', '/getPremium', null, (data) => {
+       console.dir(data.premium);
+    });
+    
+    
     return(
         <form id="financeForm" name = "financeForm"
             onSubmit = {handleFinance}

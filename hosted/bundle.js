@@ -128,6 +128,11 @@ var Filter = function Filter(props) {
 };
 
 var FinanceForm = function FinanceForm(props) {
+
+    sendAjax('GET', '/getPremium', null, function (data) {
+        console.dir(data.premium);
+    });
+
     return React.createElement(
         "form",
         { id: "financeForm", name: "financeForm",

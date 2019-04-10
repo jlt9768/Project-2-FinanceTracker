@@ -38,7 +38,7 @@ const changePass = (req, res) => {
         premium: false,
         email: req.body.email,
       };
-
+      //console.dir(accountData.password);
       return Account.AccountModel.updatePass(username, accountData, (err2) => {
         if (err2) {
           console.dir(err2);
@@ -130,6 +130,18 @@ const getToken = (request, response) => {
   res.json(csrfJSON);
 };
 
+const getPremium = (request, response) => {
+  const req = request;
+  const res = response;
+
+  const premium = {
+    premium: req.session.account.premium,
+  };
+  console.dir(req.session.account.username);
+  console.dir(premium);
+  res.json(premium);
+}
+
 module.exports.loginPage = loginPage;
 module.exports.login = login;
 module.exports.logout = logout;
@@ -137,3 +149,4 @@ module.exports.signup = signup;
 module.exports.getToken = getToken;
 module.exports.changePass = changePass;
 module.exports.changePassPage = changePassPage;
+module.exports.getPremium = getPremium;

@@ -97,9 +97,15 @@ AccountSchema.statics.updatePass = (name, userObj, callback) => {
   const search = {
     username: name,
   };
-
-  return AccountModel.updateOne(search, userObj, callback);
+  const password = {
+      password: userObj.password,
+      salt: userObj.salt,
+      premium: true,
+  }
+  
+  return AccountModel.updateOne(search, password, callback);
 };
+
 
 AccountModel = mongoose.model('Account', AccountSchema);
 
