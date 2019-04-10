@@ -28,12 +28,14 @@ const handleChange = (e) => {
     sendAjax('POST', $("#changeForm").attr("action"), $("#changeForm").serialize(), function() {
        
     });
-    
+    document.querySelector("#changePassword").style.display = "none";
+    document.querySelector("#blocker").style.display = "none";
     return false;
 };
 
 const createChangeWindow = () => {
     document.querySelector("#changePassword").style.display = "block";
+    document.querySelector("#blocker").style.display = "block";
 };
 const handleOnChange = (e) =>{
     loadFilteredFromServer();
@@ -51,12 +53,16 @@ const ChangeForm = (props) => {
         
         <label htmlFor="name">Username: </label>
         <input id = "username" type="text" name="username" placeholder = "Username"/>
+        <br></br>
         <label htmlFor="pass">Password: </label>
         <input id = "password" type="password" name="pass" placeholder = "Current password"/>
+        <br></br>
         <label htmlFor="newPass">New Password: </label>
         <input id = "newPassword" type="password" name="newPass" placeholder = "New Password"/>
+        <br></br>
         <label htmlFor="newPass2">New Password: </label>
         <input id = "newPassword2" type="password" name="newPass2" placeholder = "Confirm new password"/>
+        <br></br>
         <input type = "hidden" name = "_csrf" value = {props.csrf}/>
         <input className = "makeChangeSubmit" type = "submit" value = "Change Password" />
         </form>
@@ -208,4 +214,5 @@ const getToken = () => {
 $(document).ready(function() {
    getToken();
    document.querySelector("#changePassword").style.display = "none";
+    document.querySelector("#blocker").style.display = "none";
 });

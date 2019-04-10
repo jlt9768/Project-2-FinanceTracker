@@ -28,12 +28,14 @@ var handleChange = function handleChange(e) {
     };
 
     sendAjax('POST', $("#changeForm").attr("action"), $("#changeForm").serialize(), function () {});
-
+    document.querySelector("#changePassword").style.display = "none";
+    document.querySelector("#blocker").style.display = "none";
     return false;
 };
 
 var createChangeWindow = function createChangeWindow() {
     document.querySelector("#changePassword").style.display = "block";
+    document.querySelector("#blocker").style.display = "block";
 };
 var handleOnChange = function handleOnChange(e) {
     loadFilteredFromServer();
@@ -54,24 +56,28 @@ var ChangeForm = function ChangeForm(props) {
             "Username: "
         ),
         React.createElement("input", { id: "username", type: "text", name: "username", placeholder: "Username" }),
+        React.createElement("br", null),
         React.createElement(
             "label",
             { htmlFor: "pass" },
             "Password: "
         ),
         React.createElement("input", { id: "password", type: "password", name: "pass", placeholder: "Current password" }),
+        React.createElement("br", null),
         React.createElement(
             "label",
             { htmlFor: "newPass" },
             "New Password: "
         ),
         React.createElement("input", { id: "newPassword", type: "password", name: "newPass", placeholder: "New Password" }),
+        React.createElement("br", null),
         React.createElement(
             "label",
             { htmlFor: "newPass2" },
             "New Password: "
         ),
         React.createElement("input", { id: "newPassword2", type: "password", name: "newPass2", placeholder: "Confirm new password" }),
+        React.createElement("br", null),
         React.createElement("input", { type: "hidden", name: "_csrf", value: props.csrf }),
         React.createElement("input", { className: "makeChangeSubmit", type: "submit", value: "Change Password" })
     );
@@ -282,6 +288,7 @@ var getToken = function getToken() {
 $(document).ready(function () {
     getToken();
     document.querySelector("#changePassword").style.display = "none";
+    document.querySelector("#blocker").style.display = "none";
 });
 "use strict";
 
