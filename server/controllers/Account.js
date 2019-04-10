@@ -6,10 +6,50 @@ const loginPage = (req, res) => {
   res.render('login', { csrfToken: req.csrfToken() });
 };
 
+const changePassPage = (req, res) => {
+  res.render('login', { csrfToken: req.csrfToken() });
+};
 
 const logout = (req, res) => {
   req.session.destroy();
   res.redirect('/');
+};
+
+const changePass = (req, res) => {
+  const username = `${req.body.username}`;
+  const password = `${req.body.pass}`;
+  const newPass = `${req.body.newPass}`;
+  const newPass2 = `${req.body.newPass2}`;
+
+  if (!username || !password || !newPass || !newPass2) {
+    return res.status(400).json({ error: 'RAWR! All fields are required' });
+  }
+
+  return Account.AccountModel.authenticate(username, password, (err, account) => {
+    if (err || !account) {
+      return res.status(401).json({ error: 'Wrong username or password' });
+    }
+
+    return Account.AccountModel.generateHash(newPass, (salt, hash) => {
+      const accountData = {
+        username: req.body.username,
+        salt,
+        password: hash,
+        premium: false,
+        email: req.body.email,
+      };
+
+      return Account.AccountModel.updatePass(username, accountData, (err2) => {
+        if (err2) {
+          console.dir(err2);
+        }
+
+        return res.json({ redirect: '/finance' });
+      });
+    });
+
+    // return res.json({ redirect: '/maker' });
+  });
 };
 
 const login = (request, response) => {
@@ -95,3 +135,5 @@ module.exports.login = login;
 module.exports.logout = logout;
 module.exports.signup = signup;
 module.exports.getToken = getToken;
+module.exports.changePass = changePass;
+module.exports.changePassPage = changePassPage;

@@ -93,6 +93,14 @@ AccountModel.findByUsername(username, (err, doc) => {
   });
 });
 
+AccountSchema.statics.updatePass = (name, userObj, callback) => {
+  const search = {
+    username: name,
+  };
+
+  return AccountModel.updateOne(search, userObj, callback);
+};
+
 AccountModel = mongoose.model('Account', AccountSchema);
 
 module.exports.AccountModel = AccountModel;

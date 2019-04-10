@@ -15,9 +15,55 @@ const handleFinance = (e) => {
     return false;
 };
 
+const handleChange = (e) => {
+    e.preventDefault();
+    
+    $("#domoMessage").animate({width:'hide'}, 350);
+    
+    if($("#username").val() == '' || $("#password").val() == '' || $("#newPass").val() == '' || $("#newPass2").val() == '' ){
+        handleError("All fields are required");
+        return false;
+    };
+    
+    sendAjax('POST', $("#changeForm").attr("action"), $("#changeForm").serialize(), function() {
+       
+    });
+    
+    return false;
+};
+
+const createChangeWindow = () => {
+    document.querySelector("#changePassword").style.display = "block";
+};
 const handleOnChange = (e) =>{
     loadFilteredFromServer();
 }
+
+const ChangeForm = (props) => {
+    return(
+      <form id="changeForm" name = "changeForm"
+            onSubmit = {handleChange}
+            action = "/changePass"
+            method="POST"
+            className="changeForm"
+        >
+        
+        
+        <label htmlFor="name">Username: </label>
+        <input id = "username" type="text" name="username" placeholder = "Username"/>
+        <label htmlFor="pass">Password: </label>
+        <input id = "password" type="password" name="pass" placeholder = "Current password"/>
+        <label htmlFor="newPass">New Password: </label>
+        <input id = "newPassword" type="password" name="newPass" placeholder = "New Password"/>
+        <label htmlFor="newPass2">New Password: </label>
+        <input id = "newPassword2" type="password" name="newPass2" placeholder = "Confirm new password"/>
+        <input type = "hidden" name = "_csrf" value = {props.csrf}/>
+        <input className = "makeChangeSubmit" type = "submit" value = "Change Password" />
+        </form>
+  
+  );    
+};
+
 const Filter = (props) => {
   return(
       <div id="reactFilter">
@@ -61,7 +107,7 @@ const FinanceForm = (props) => {
         </select>
             <label htmlFor="date">Date: </label>
         <input id = "financeDateInput" type="date" name="date"/>
-        <input type = "hidden" name = "_csrf" value = {props.csrf}/>
+        <input id = "csrf" type = "hidden" name = "_csrf" value = {props.csrf}/>
         <input className = "makeFinanceSubmit" type = "submit" value = "Add Finance" />
         </form>
         
@@ -124,6 +170,14 @@ const loadFinancesFromServer = () => {
 };
 
 const setup = function(csrf){
+    
+    ReactDOM.render(
+      <ChangeForm csrf={csrf} />,
+      document.querySelector("#changePassword")
+    );
+    
+    //$("#changeForm").style.display = "none";
+    
     ReactDOM.render(
         <FinanceForm csrf={csrf} />, document.querySelector("#makeFinance")
     );
@@ -134,6 +188,14 @@ const setup = function(csrf){
     ReactDOM.render(
         <Filter />, document.querySelector("#filter")
     );
+    
+    const changeButton = document.querySelector("#changeButton");
+    changeButton.addEventListener("click", (e) => {
+       e.preventDefault();
+       createChangeWindow(csrf);
+       return false;
+    });
+    
     loadFinancesFromServer();
 };
 
@@ -144,5 +206,6 @@ const getToken = () => {
 };
 
 $(document).ready(function() {
-   getToken(); 
+   getToken();
+   document.querySelector("#changePassword").style.display = "none";
 });

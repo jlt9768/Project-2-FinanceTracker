@@ -13,6 +13,10 @@ const router = (app) => {
   app.post('/finance', mid.requiresLogin, controllers.Finance.make);
   app.get('/maker', mid.requiresLogin, controllers.Domo.makerPage);
   app.post('/maker', mid.requiresLogin, controllers.Domo.make);
+  // app.get('/changePass', mid.requiresSecure(), mid.requiresLogin(),
+         // controllers.Account.changePassPage);
+  app.post('/changePass', mid.requiresSecure, mid.requiresLogin,
+          controllers.Account.changePass);
   app.get('/', mid.requiresSecure, mid.requiresLogout, controllers.Account.loginPage);
 };
 

@@ -17,9 +17,66 @@ var handleFinance = function handleFinance(e) {
     return false;
 };
 
+var handleChange = function handleChange(e) {
+    e.preventDefault();
+
+    $("#domoMessage").animate({ width: 'hide' }, 350);
+
+    if ($("#username").val() == '' || $("#password").val() == '' || $("#newPass").val() == '' || $("#newPass2").val() == '') {
+        handleError("All fields are required");
+        return false;
+    };
+
+    sendAjax('POST', $("#changeForm").attr("action"), $("#changeForm").serialize(), function () {});
+
+    return false;
+};
+
+var createChangeWindow = function createChangeWindow() {
+    document.querySelector("#changePassword").style.display = "block";
+};
 var handleOnChange = function handleOnChange(e) {
     loadFilteredFromServer();
 };
+
+var ChangeForm = function ChangeForm(props) {
+    return React.createElement(
+        "form",
+        { id: "changeForm", name: "changeForm",
+            onSubmit: handleChange,
+            action: "/changePass",
+            method: "POST",
+            className: "changeForm"
+        },
+        React.createElement(
+            "label",
+            { htmlFor: "name" },
+            "Username: "
+        ),
+        React.createElement("input", { id: "username", type: "text", name: "username", placeholder: "Username" }),
+        React.createElement(
+            "label",
+            { htmlFor: "pass" },
+            "Password: "
+        ),
+        React.createElement("input", { id: "password", type: "password", name: "pass", placeholder: "Current password" }),
+        React.createElement(
+            "label",
+            { htmlFor: "newPass" },
+            "New Password: "
+        ),
+        React.createElement("input", { id: "newPassword", type: "password", name: "newPass", placeholder: "New Password" }),
+        React.createElement(
+            "label",
+            { htmlFor: "newPass2" },
+            "New Password: "
+        ),
+        React.createElement("input", { id: "newPassword2", type: "password", name: "newPass2", placeholder: "Confirm new password" }),
+        React.createElement("input", { type: "hidden", name: "_csrf", value: props.csrf }),
+        React.createElement("input", { className: "makeChangeSubmit", type: "submit", value: "Change Password" })
+    );
+};
+
 var Filter = function Filter(props) {
     return React.createElement(
         "div",
@@ -120,7 +177,7 @@ var FinanceForm = function FinanceForm(props) {
             "Date: "
         ),
         React.createElement("input", { id: "financeDateInput", type: "date", name: "date" }),
-        React.createElement("input", { type: "hidden", name: "_csrf", value: props.csrf }),
+        React.createElement("input", { id: "csrf", type: "hidden", name: "_csrf", value: props.csrf }),
         React.createElement("input", { className: "makeFinanceSubmit", type: "submit", value: "Add Finance" })
     );
 };
@@ -196,10 +253,23 @@ var loadFinancesFromServer = function loadFinancesFromServer() {
 };
 
 var setup = function setup(csrf) {
+
+    ReactDOM.render(React.createElement(ChangeForm, { csrf: csrf }), document.querySelector("#changePassword"));
+
+    //$("#changeForm").style.display = "none";
+
     ReactDOM.render(React.createElement(FinanceForm, { csrf: csrf }), document.querySelector("#makeFinance"));
 
     ReactDOM.render(React.createElement(FinanceList, { finances: [] }), document.querySelector("#finances"));
     ReactDOM.render(React.createElement(Filter, null), document.querySelector("#filter"));
+
+    var changeButton = document.querySelector("#changeButton");
+    changeButton.addEventListener("click", function (e) {
+        e.preventDefault();
+        createChangeWindow(csrf);
+        return false;
+    });
+
     loadFinancesFromServer();
 };
 
@@ -211,6 +281,7 @@ var getToken = function getToken() {
 
 $(document).ready(function () {
     getToken();
+    document.querySelector("#changePassword").style.display = "none";
 });
 "use strict";
 

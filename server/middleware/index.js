@@ -20,9 +20,7 @@ const requiresSecure = (req, res, next) => {
   return next();
 };
 
-const bypassSecure = (req, res, next) => {
-  next();
-};
+const bypassSecure = (req, res, next) => { next(); };
 
 module.exports.requiresLogin = requiresLogin;
 module.exports.requiresLogout = requiresLogout;
