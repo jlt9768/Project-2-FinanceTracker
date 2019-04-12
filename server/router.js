@@ -12,8 +12,7 @@ const router = (app) => {
   app.get('/logout', mid.requiresLogin, controllers.Account.logout);
   app.get('/finance', mid.requiresLogin, controllers.Finance.financePage);
   app.post('/finance', mid.requiresLogin, controllers.Finance.make);
-  app.get('/maker', mid.requiresLogin, controllers.Domo.makerPage);
-  app.post('/maker', mid.requiresLogin, controllers.Domo.make);
+  app.post('/upgrade', mid.requiresLogin, controllers.Account.upgrade);
   // app.get('/changePass', mid.requiresSecure(), mid.requiresLogin(),
          // controllers.Account.changePassPage);
   app.post('/changePass', mid.requiresSecure, mid.requiresLogin,

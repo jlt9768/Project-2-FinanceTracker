@@ -98,12 +98,21 @@ AccountSchema.statics.updatePass = (name, userObj, callback) => {
     username: name,
   };
   const password = {
-      password: userObj.password,
-      salt: userObj.salt,
-      premium: true,
-  }
-  
+    password: userObj.password,
+    salt: userObj.salt,
+  };
+
   return AccountModel.updateOne(search, password, callback);
+};
+
+AccountSchema.statics.upgrade = (name, callback) => {
+  const search = {
+    username: name,
+  };
+  const premium = {
+    premium: true,
+  };
+  return AccountModel.updateOne(search, premium, callback);
 };
 
 

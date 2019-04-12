@@ -32,18 +32,15 @@ const changePass = (req, res) => {
 
     return Account.AccountModel.generateHash(newPass, (salt, hash) => {
       const accountData = {
-        username: req.body.username,
         salt,
         password: hash,
-        premium: false,
-        email: req.body.email,
       };
-      //console.dir(accountData.password);
+      // console.dir(accountData.password);
       return Account.AccountModel.updatePass(username, accountData, (err2) => {
         if (err2) {
           console.dir(err2);
         }
-
+        // req.session.account.premium = true;
         return res.json({ redirect: '/finance' });
       });
     });
@@ -51,6 +48,7 @@ const changePass = (req, res) => {
     // return res.json({ redirect: '/maker' });
   });
 };
+
 
 const login = (request, response) => {
   const req = request;
@@ -70,7 +68,7 @@ const login = (request, response) => {
 
     req.session.account = Account.AccountModel.toAPI(account);
 
-    return res.json({ redirect: '/maker' });
+    return res.json({ redirect: '/finance' });
   });
 };
 
@@ -137,10 +135,19 @@ const getPremium = (request, response) => {
   const premium = {
     premium: req.session.account.premium,
   };
-  console.dir(req.session.account.username);
-  console.dir(premium);
   res.json(premium);
-}
+};
+
+const upgrade = (req, res) => {
+  console.dir('In upgrade Controller');
+  return Account.AccountModel.upgrade(req.session.account.username, (err) => {
+    if (err) {
+      console.dir(err);
+    }
+    req.session.account.premium = true;
+    return res.json({ redirect: '/finance' });
+  });
+};
 
 module.exports.loginPage = loginPage;
 module.exports.login = login;
@@ -150,3 +157,4 @@ module.exports.getToken = getToken;
 module.exports.changePass = changePass;
 module.exports.changePassPage = changePassPage;
 module.exports.getPremium = getPremium;
+module.exports.upgrade = upgrade;

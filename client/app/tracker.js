@@ -33,6 +33,17 @@ const handleChange = (e) => {
     return false;
 };
 
+const handleUpgrade = (e) => {
+    
+    $("#domoMessage").animate({width:'hide'}, 350);
+     
+    
+    sendAjax('POST', '/upgrade', $("#financeForm").serialize(), function() {
+    });
+    
+    return false;
+};
+
 const createChangeWindow = () => {
     document.querySelector("#changePassword").style.display = "block";
     document.querySelector("#blocker").style.display = "block";
@@ -90,11 +101,7 @@ const Filter = (props) => {
 };
 
 
-const FinanceForm = (props) => {
-    
-    sendAjax('GET', '/getPremium', null, (data) => {
-       console.dir(data.premium);
-    });
+const FinanceFormPremium = (props) => {
     
     
     return(
@@ -127,6 +134,36 @@ const FinanceForm = (props) => {
     );  
 };
 
+const FinanceForm= (props) => {
+    
+    
+    return(
+        <form id="financeForm" name = "financeForm"
+            onSubmit = {handleFinance}
+            action = "/finance"
+            method="POST"
+            className="financeForm"
+        >
+        
+        
+        <label htmlFor="item">Item: </label>
+        <input id = "financeItem" type="text" name="item" placeholder = "Name of item"/>
+        <label id = "amount" htmlFor="amount">Amount: </label>
+        <input id = "financeAmount" type="text" name="amount" placeholder = "Cost of item"/>
+        <label htmlFor="type">Type: </label>
+        <select id = "financeType" name = "type">
+            <option value="Other" selected>Other</option>
+        </select>
+            <label htmlFor="date">Date: </label>
+        <input id = "financeDateInput" type="date" name="date"/>
+        <input id = "csrf" type = "hidden" name = "_csrf" value = {props.csrf}/>
+        <input className = "makeFinanceSubmit" type = "submit" value = "Add Finance" />
+        </form>
+        
+
+    );  
+};
+
 const FinanceList = function(props) {
     if(props.finances.length === 0){
       return(
@@ -137,7 +174,6 @@ const FinanceList = function(props) {
     };
     
     const financeNodes = props.finances.map(function(finance) {
-            console.log();
             return(
             <div key={finance._id} className = "finance">
                 
@@ -183,6 +219,8 @@ const loadFinancesFromServer = () => {
 
 const setup = function(csrf){
     
+    
+    
     ReactDOM.render(
       <ChangeForm csrf={csrf} />,
       document.querySelector("#changePassword")
@@ -190,9 +228,20 @@ const setup = function(csrf){
     
     //$("#changeForm").style.display = "none";
     
-    ReactDOM.render(
-        <FinanceForm csrf={csrf} />, document.querySelector("#makeFinance")
-    );
+    
+    sendAjax('GET', '/getPremium', null, (data) => {      
+       if(data.premium){
+           ReactDOM.render(
+                <FinanceFormPremium csrf={csrf} />, document.querySelector("#makeFinance")
+           );
+       }else{
+           ReactDOM.render(
+               <FinanceForm csrf={csrf} />, document.querySelector("#makeFinance")
+           );
+       }
+    });
+    
+    
     
     ReactDOM.render(
         <FinanceList finances= {[]} />, document.querySelector("#finances")
@@ -206,6 +255,12 @@ const setup = function(csrf){
        e.preventDefault();
        createChangeWindow(csrf);
        return false;
+    });
+    const upgradeButton = document.querySelector("#upgradeButton");
+    upgradeButton.addEventListener("click", (e) => {
+       //e.preventDefault();
+       handleUpgrade();
+       //return false;
     });
     
     loadFinancesFromServer();

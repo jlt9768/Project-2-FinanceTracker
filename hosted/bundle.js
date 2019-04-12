@@ -33,6 +33,15 @@ var handleChange = function handleChange(e) {
     return false;
 };
 
+var handleUpgrade = function handleUpgrade(e) {
+
+    $("#domoMessage").animate({ width: 'hide' }, 350);
+
+    sendAjax('POST', '/upgrade', $("#financeForm").serialize(), function () {});
+
+    return false;
+};
+
 var createChangeWindow = function createChangeWindow() {
     document.querySelector("#changePassword").style.display = "block";
     document.querySelector("#blocker").style.display = "block";
@@ -127,11 +136,7 @@ var Filter = function Filter(props) {
     );
 };
 
-var FinanceForm = function FinanceForm(props) {
-
-    sendAjax('GET', '/getPremium', null, function (data) {
-        console.dir(data.premium);
-    });
+var FinanceFormPremium = function FinanceFormPremium(props) {
 
     return React.createElement(
         "form",
@@ -193,6 +198,53 @@ var FinanceForm = function FinanceForm(props) {
     );
 };
 
+var FinanceForm = function FinanceForm(props) {
+
+    return React.createElement(
+        "form",
+        { id: "financeForm", name: "financeForm",
+            onSubmit: handleFinance,
+            action: "/finance",
+            method: "POST",
+            className: "financeForm"
+        },
+        React.createElement(
+            "label",
+            { htmlFor: "item" },
+            "Item: "
+        ),
+        React.createElement("input", { id: "financeItem", type: "text", name: "item", placeholder: "Name of item" }),
+        React.createElement(
+            "label",
+            { id: "amount", htmlFor: "amount" },
+            "Amount: "
+        ),
+        React.createElement("input", { id: "financeAmount", type: "text", name: "amount", placeholder: "Cost of item" }),
+        React.createElement(
+            "label",
+            { htmlFor: "type" },
+            "Type: "
+        ),
+        React.createElement(
+            "select",
+            { id: "financeType", name: "type" },
+            React.createElement(
+                "option",
+                { value: "Other", selected: true },
+                "Other"
+            )
+        ),
+        React.createElement(
+            "label",
+            { htmlFor: "date" },
+            "Date: "
+        ),
+        React.createElement("input", { id: "financeDateInput", type: "date", name: "date" }),
+        React.createElement("input", { id: "csrf", type: "hidden", name: "_csrf", value: props.csrf }),
+        React.createElement("input", { className: "makeFinanceSubmit", type: "submit", value: "Add Finance" })
+    );
+};
+
 var FinanceList = function FinanceList(props) {
     if (props.finances.length === 0) {
         return React.createElement(
@@ -207,7 +259,6 @@ var FinanceList = function FinanceList(props) {
     };
 
     var financeNodes = props.finances.map(function (finance) {
-        console.log();
         return React.createElement(
             "div",
             { key: finance._id, className: "finance" },
@@ -269,7 +320,14 @@ var setup = function setup(csrf) {
 
     //$("#changeForm").style.display = "none";
 
-    ReactDOM.render(React.createElement(FinanceForm, { csrf: csrf }), document.querySelector("#makeFinance"));
+
+    sendAjax('GET', '/getPremium', null, function (data) {
+        if (data.premium) {
+            ReactDOM.render(React.createElement(FinanceFormPremium, { csrf: csrf }), document.querySelector("#makeFinance"));
+        } else {
+            ReactDOM.render(React.createElement(FinanceForm, { csrf: csrf }), document.querySelector("#makeFinance"));
+        }
+    });
 
     ReactDOM.render(React.createElement(FinanceList, { finances: [] }), document.querySelector("#finances"));
     ReactDOM.render(React.createElement(Filter, null), document.querySelector("#filter"));
@@ -279,6 +337,12 @@ var setup = function setup(csrf) {
         e.preventDefault();
         createChangeWindow(csrf);
         return false;
+    });
+    var upgradeButton = document.querySelector("#upgradeButton");
+    upgradeButton.addEventListener("click", function (e) {
+        //e.preventDefault();
+        handleUpgrade();
+        //return false;
     });
 
     loadFinancesFromServer();
