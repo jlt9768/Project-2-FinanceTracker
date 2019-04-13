@@ -138,8 +138,8 @@ const getPremium = (request, response) => {
   res.json(premium);
 };
 
-const upgrade = (req, res) => {
-  console.dir('In upgrade Controller');
+const upgrade = (request, res) => {
+  const req = request;
   return Account.AccountModel.upgrade(req.session.account.username, (err) => {
     if (err) {
       console.dir(err);
