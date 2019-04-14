@@ -24,7 +24,11 @@ const handleFinance = (e) => {
     };
     
     sendAjax('POST', $("#financeForm").attr("action"), $("#financeForm").serialize(), function() {
-       loadFinancesFromServer(); 
+       loadFinancesFromServer();
+        $("#financeItem").val("");
+        $("#financeAmount").val("");
+        $("#financeType").val("Other");
+        $("#financeDateInput").val("");
     });
     
     return false;
@@ -137,7 +141,7 @@ const UpgradePop = (props) => {
 const FinanceGraph = (props) => {
     return(
         <div id = "sticky">
-        <h2>Finance Graph:</h2>
+        <h2>Finances Graph:</h2>
         <div id="barPanel">
             <div id="barTotal">Total:</div>
             <div id="barOther">Other:</div>

@@ -27,6 +27,10 @@ var handleFinance = function handleFinance(e) {
 
     sendAjax('POST', $("#financeForm").attr("action"), $("#financeForm").serialize(), function () {
         loadFinancesFromServer();
+        $("#financeItem").val("");
+        $("#financeAmount").val("");
+        $("#financeType").val("Other");
+        $("#financeDateInput").val("");
     });
 
     return false;
@@ -145,7 +149,7 @@ var FinanceGraph = function FinanceGraph(props) {
         React.createElement(
             "h2",
             null,
-            "Finance Graph:"
+            "Finances Graph:"
         ),
         React.createElement(
             "div",
