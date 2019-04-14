@@ -22,14 +22,14 @@ const changePass = (req, res) => {
   const newPass2 = `${req.body.newPass2}`;
 
   if (!username || !password || !newPass || !newPass2) {
-    return res.status(400).json({ error: 'RAWR! All fields are required' });
+    return res.status(400).json({ error: 'All fields are required' });
   }
 
   return Account.AccountModel.authenticate(username, password, (err, account) => {
     if (err || !account) {
       return res.status(401).json({ error: 'Wrong username or password' });
     }
-
+    
     return Account.AccountModel.generateHash(newPass, (salt, hash) => {
       const accountData = {
         salt,
@@ -58,7 +58,7 @@ const login = (request, response) => {
   const password = `${req.body.pass}`;
 
   if (!username || !password) {
-    return res.status(400).json({ error: 'RAWR! All fields are required' });
+    return res.status(400).json({ error: 'All fields are required' });
   }
 
   return Account.AccountModel.authenticate(username, password, (err, account) => {

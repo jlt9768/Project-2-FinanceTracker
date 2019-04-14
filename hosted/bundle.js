@@ -1,12 +1,26 @@
 "use strict";
 
+//Create a post request with data from the finance form
+var hideOverScreen = function hideOverScreen(state) {
+    if (state) {
+        document.querySelector("#overScreen").style.display = "none";
+        document.querySelector("#blocker").style.display = "none";
+    } else {
+        document.querySelector("#overScreen").style.display = "block";
+        document.querySelector("#blocker").style.display = "block";
+    }
+};
+
 var handleFinance = function handleFinance(e) {
     e.preventDefault();
 
-    $("#domoMessage").animate({ width: 'hide' }, 350);
+    $("#movingMessage").animate({ height: 'hide' }, 350);
 
     if ($("#financeDate").val() == '' || $("#financeItem").val() == '') {
         handleError("All fields are required");
+        setTimeout(function () {
+            $("#movingMessage").animate({ height: 'hide' }, 350);
+        }, 3000);
         return false;
     };
 
@@ -20,75 +34,191 @@ var handleFinance = function handleFinance(e) {
 var handleChange = function handleChange(e) {
     e.preventDefault();
 
-    $("#domoMessage").animate({ width: 'hide' }, 350);
+    $("#movingMessage").animate({ height: 'hide' }, 350);
 
-    if ($("#username").val() == '' || $("#password").val() == '' || $("#newPass").val() == '' || $("#newPass2").val() == '') {
+    if ($("#username").val() == '' || $("#password").val() == '' || $("#newPassword").val() == '' || $("#newPassword2").val() == '') {
         handleError("All fields are required");
+        setTimeout(function () {
+            $("#movingMessage").animate({ height: 'hide' }, 350);
+        }, 3000);
         return false;
     };
 
-    sendAjax('POST', $("#changeForm").attr("action"), $("#changeForm").serialize(), function () {});
-    document.querySelector("#changePassword").style.display = "none";
-    document.querySelector("#blocker").style.display = "none";
+    if ($("#newPassword").val() !== $("#newPassword2").val()) {
+        handleError("Passwords do not match");
+        setTimeout(function () {
+            $("#movingMessage").animate({ height: 'hide' }, 350);
+        }, 3000);
+        return false;
+    } else {
+        sendAjax('POST', $("#changeForm").attr("action"), $("#changeForm").serialize(), function () {});
+    }
+
+    hideOverScreen(true);
     return false;
 };
 
 var handleUpgrade = function handleUpgrade(e) {
 
-    $("#domoMessage").animate({ width: 'hide' }, 350);
+    $("#movingMessage").animate({ height: 'hide' }, 350);
 
     sendAjax('POST', '/upgrade', $("#financeForm").serialize(), function () {});
-
+    //window.location.reload();
     return false;
 };
 
+var handleGraph = function handleGraph(total, other, monthly, food, clothing) {
+    var totalBar = document.querySelector("#barTotal");
+    var otherBar = document.querySelector("#barOther");
+    var monthlyBar = document.querySelector("#barMonthly");
+    var foodBar = document.querySelector("#barFood");
+    var clothingBar = document.querySelector("#barClothing");
+
+    totalBar.innerHTML = "Total: $" + total.toFixed(2);
+    otherBar.innerHTML = "Other: $" + other.toFixed(2);
+    monthlyBar.innerHTML = "Monthly: $" + monthly.toFixed(2);
+    foodBar.innerHTML = "Food: $" + food.toFixed(2);
+    clothingBar.innerHTML = "Clothing: $" + clothing.toFixed(2);
+
+    if (total !== 0) {
+        totalBar.style.width = '100%';
+        otherBar.style.width = '' + other / total * 100 + '%';
+        monthlyBar.style.width = '' + monthly / total * 100 + '%';
+        foodBar.style.width = '' + food / total * 100 + '%';
+        clothingBar.style.width = '' + clothing / total * 100 + '%';
+    } else {
+        totalBar.style.width = '0%';
+        otherBar.style.width = '0%';
+        monthlyBar.style.width = '0%';
+        foodBar.style.width = '0%';
+        clothingBar.style.width = '0%';
+    }
+};
+
 var createChangeWindow = function createChangeWindow() {
-    document.querySelector("#changePassword").style.display = "block";
-    document.querySelector("#blocker").style.display = "block";
+    hideOverScreen(false);
 };
 var handleOnChange = function handleOnChange(e) {
+    handleGraph(0, 0, 0, 0, 0);
     loadFilteredFromServer();
+};
+
+var UpgradePop = function UpgradePop(props) {
+    return React.createElement(
+        "div",
+        null,
+        "Upgrade to premium today for only $2 USD. You gain access to more options to differentiate types of finances.",
+        React.createElement("br", null),
+        React.createElement(
+            "button",
+            { id: "upgradeSubmit", onClick: handleUpgrade },
+            React.createElement(
+                "a",
+                { href: "/" },
+                "Upgrade"
+            )
+        ),
+        React.createElement(
+            "button",
+            { id: "exitButton", onClick: function onClick() {
+                    return hideOverScreen(true);
+                } },
+            "Exit"
+        )
+    );
+};
+
+var FinanceGraph = function FinanceGraph(props) {
+    return React.createElement(
+        "div",
+        { id: "sticky" },
+        React.createElement(
+            "h2",
+            null,
+            "Finance Graph:"
+        ),
+        React.createElement(
+            "div",
+            { id: "barPanel" },
+            React.createElement(
+                "div",
+                { id: "barTotal" },
+                "Total:"
+            ),
+            React.createElement(
+                "div",
+                { id: "barOther" },
+                "Other:"
+            ),
+            React.createElement(
+                "div",
+                { id: "barMonthly" },
+                "Monthly:"
+            ),
+            React.createElement(
+                "div",
+                { id: "barFood" },
+                "Food:"
+            ),
+            React.createElement(
+                "div",
+                { id: "barClothing" },
+                "Clothing:"
+            )
+        )
+    );
 };
 
 var ChangeForm = function ChangeForm(props) {
     return React.createElement(
-        "form",
-        { id: "changeForm", name: "changeForm",
-            onSubmit: handleChange,
-            action: "/changePass",
-            method: "POST",
-            className: "changeForm"
-        },
+        "div",
+        null,
         React.createElement(
-            "label",
-            { htmlFor: "name" },
-            "Username: "
+            "form",
+            { id: "changeForm", name: "changeForm",
+                onSubmit: handleChange,
+                action: "/changePass",
+                method: "POST",
+                className: "changeForm"
+            },
+            React.createElement(
+                "label",
+                { htmlFor: "name" },
+                "Username: "
+            ),
+            React.createElement("input", { id: "username", type: "text", name: "username", placeholder: "Username" }),
+            React.createElement("br", null),
+            React.createElement(
+                "label",
+                { htmlFor: "pass" },
+                "Password: "
+            ),
+            React.createElement("input", { id: "password", type: "password", name: "pass", placeholder: "Current password" }),
+            React.createElement("br", null),
+            React.createElement(
+                "label",
+                { htmlFor: "newPass" },
+                "New Password: "
+            ),
+            React.createElement("input", { id: "newPassword", type: "password", name: "newPass", placeholder: "New Password" }),
+            React.createElement("br", null),
+            React.createElement(
+                "label",
+                { htmlFor: "newPass2" },
+                "New Password: "
+            ),
+            React.createElement("input", { id: "newPassword2", type: "password", name: "newPass2", placeholder: "Confirm new password" }),
+            React.createElement("br", null),
+            React.createElement("input", { type: "hidden", name: "_csrf", value: props.csrf }),
+            React.createElement("input", { className: "makeChangeSubmit", type: "submit", value: "Change Password" })
         ),
-        React.createElement("input", { id: "username", type: "text", name: "username", placeholder: "Username" }),
-        React.createElement("br", null),
         React.createElement(
-            "label",
-            { htmlFor: "pass" },
-            "Password: "
-        ),
-        React.createElement("input", { id: "password", type: "password", name: "pass", placeholder: "Current password" }),
-        React.createElement("br", null),
-        React.createElement(
-            "label",
-            { htmlFor: "newPass" },
-            "New Password: "
-        ),
-        React.createElement("input", { id: "newPassword", type: "password", name: "newPass", placeholder: "New Password" }),
-        React.createElement("br", null),
-        React.createElement(
-            "label",
-            { htmlFor: "newPass2" },
-            "New Password: "
-        ),
-        React.createElement("input", { id: "newPassword2", type: "password", name: "newPass2", placeholder: "Confirm new password" }),
-        React.createElement("br", null),
-        React.createElement("input", { type: "hidden", name: "_csrf", value: props.csrf }),
-        React.createElement("input", { className: "makeChangeSubmit", type: "submit", value: "Change Password" })
+            "button",
+            { id: "exitButton", onClick: function onClick() {
+                    return hideOverScreen(true);
+                } },
+            "Exit"
+        )
     );
 };
 
@@ -246,7 +376,13 @@ var FinanceForm = function FinanceForm(props) {
 };
 
 var FinanceList = function FinanceList(props) {
+    var total = 0;
+    var other = 0;
+    var monthly = 0;
+    var food = 0;
+    var clothing = 0;
     if (props.finances.length === 0) {
+
         return React.createElement(
             "div",
             { className: "financeList" },
@@ -259,6 +395,21 @@ var FinanceList = function FinanceList(props) {
     };
 
     var financeNodes = props.finances.map(function (finance) {
+        total += finance.amount;
+        switch (finance.type) {
+            case "Other":
+                other += finance.amount;
+                break;
+            case "Monthly":
+                monthly += finance.amount;
+                break;
+            case "Food":
+                food += finance.amount;
+                break;
+            case "Clothing":
+                clothing += finance.amount;
+                break;
+        }
         return React.createElement(
             "div",
             { key: finance._id, className: "finance" },
@@ -288,7 +439,7 @@ var FinanceList = function FinanceList(props) {
             )
         );
     });
-
+    handleGraph(total, other, monthly, food, clothing);
     return React.createElement(
         "div",
         { className: "financeList" },
@@ -315,8 +466,10 @@ var loadFinancesFromServer = function loadFinancesFromServer() {
 };
 
 var setup = function setup(csrf) {
+    //document.querySelector("#upgradeButton").style.display = "none";
 
-    ReactDOM.render(React.createElement(ChangeForm, { csrf: csrf }), document.querySelector("#changePassword"));
+
+    ReactDOM.render(React.createElement(ChangeForm, { csrf: csrf }), document.querySelector("#overScreen"));
 
     //$("#changeForm").style.display = "none";
 
@@ -324,8 +477,10 @@ var setup = function setup(csrf) {
     sendAjax('GET', '/getPremium', null, function (data) {
         if (data.premium) {
             ReactDOM.render(React.createElement(FinanceFormPremium, { csrf: csrf }), document.querySelector("#makeFinance"));
+            document.querySelector("#upgradeButton").style.display = "none";
         } else {
             ReactDOM.render(React.createElement(FinanceForm, { csrf: csrf }), document.querySelector("#makeFinance"));
+            document.querySelector("#upgradeButton").style.display = "block";
         }
     });
 
@@ -334,18 +489,45 @@ var setup = function setup(csrf) {
 
     var changeButton = document.querySelector("#changeButton");
     changeButton.addEventListener("click", function (e) {
+
+        //const exitButton = document.querySelector("#exitButton");
+        //document.querySelector("#exitButton").addEventListener("click", (e) => {
+        //   e.preventDefault();
+        //   hideOverScreen(true);
+        //   return false;
+        //});
+
         e.preventDefault();
+        ReactDOM.render(React.createElement(ChangeForm, { csrf: csrf }), document.querySelector("#overScreen"));
         createChangeWindow(csrf);
         return false;
     });
     var upgradeButton = document.querySelector("#upgradeButton");
     upgradeButton.addEventListener("click", function (e) {
-        //e.preventDefault();
-        handleUpgrade();
-        //return false;
+
+        //const exitButton = document.querySelector("#exitButton");
+        //document.querySelector("#exitButton").addEventListener("click", (e) => {
+        //   e.preventDefault();
+        //   hideOverScreen(true);
+        //   return false;
+        //});
+
+        ReactDOM.render(React.createElement(UpgradePop, null), document.querySelector("#overScreen"));
+        e.preventDefault();
+        hideOverScreen(false);
+
+        return false;
     });
 
+    ReactDOM.render(React.createElement(FinanceGraph, null), document.querySelector("#graph"));
+    handleGraph(0, 0, 0, 0, 0);
     loadFinancesFromServer();
+
+    document.querySelector("#barTotal").style.backgroundColor = "#b50000";
+    document.querySelector("#barOther").style.backgroundColor = "#00b500";
+    document.querySelector("#barMonthly").style.backgroundColor = "0000b5";
+    document.querySelector("#barFood").style.backgroundColor = "b5b500";
+    document.querySelector("#barClothing").style.backgroundColor = "b500b5";
 };
 
 var getToken = function getToken() {
@@ -356,18 +538,17 @@ var getToken = function getToken() {
 
 $(document).ready(function () {
     getToken();
-    document.querySelector("#changePassword").style.display = "none";
-    document.querySelector("#blocker").style.display = "none";
+    hideOverScreen(true);
 });
 "use strict";
 
 var handleError = function handleError(message) {
     $("#errorMessage").text(message);
-    $("#domoMessage").animate({ width: 'toggle' }, 350);
+    $("#movingMessage").animate({ height: 'toggle' }, 350);
 };
 
 var redirect = function redirect(response) {
-    $("#domoMessage").animate({ width: 'hide' }, 350);
+    $("#movingMessage").animate({ height: 'hide' }, 0);
     window.location = response.redirect;
 };
 

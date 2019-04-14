@@ -13,8 +13,8 @@ const financePage = (req, res) => {
 };
 
 const makeFinance = (req, res) => {
-  if (!req.body.date || !req.body.item || !req.body.type) {
-    return res.status(400).json({ error: ' Date, Item, and Type are required ' });
+  if (!req.body.date || !req.body.item || !req.body.type || !req.body.amount) {
+    return res.status(400).json({ error: ' All fields are required' });
   }
 
   const financeData = {

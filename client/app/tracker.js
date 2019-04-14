@@ -1,10 +1,24 @@
+//Create a post request with data from the finance form
+const hideOverScreen = (state) => {
+    if(state){
+        document.querySelector("#overScreen").style.display = "none";
+        document.querySelector("#blocker").style.display = "none";
+    }else{
+        document.querySelector("#overScreen").style.display = "block";
+        document.querySelector("#blocker").style.display = "block";
+    }
+}
+
 const handleFinance = (e) => {
     e.preventDefault();
     
-    $("#domoMessage").animate({width:'hide'}, 350);
+    $("#movingMessage").animate({height:'hide'}, 350);
     
     if($("#financeDate").val() == '' || $("#financeItem").val() == '' ){
         handleError("All fields are required");
+        setTimeout(() => {
+          $("#movingMessage").animate({height:'hide'}, 350);
+        }, 3000);
         return false;
     };
     
@@ -18,42 +32,116 @@ const handleFinance = (e) => {
 const handleChange = (e) => {
     e.preventDefault();
     
-    $("#domoMessage").animate({width:'hide'}, 350);
+    $("#movingMessage").animate({height:'hide'}, 350);
     
-    if($("#username").val() == '' || $("#password").val() == '' || $("#newPass").val() == '' || $("#newPass2").val() == '' ){
+    if($("#username").val() == '' || $("#password").val() == '' || $("#newPassword").val() == '' || $("#newPassword2").val() == '' ){
         handleError("All fields are required");
+        setTimeout(() => {
+          $("#movingMessage").animate({height:'hide'}, 350);
+        }, 3000);
         return false;
     };
     
-    sendAjax('POST', $("#changeForm").attr("action"), $("#changeForm").serialize(), function() {
+    
+    
+    if( $("#newPassword").val() !== $("#newPassword2").val()){
+        handleError("Passwords do not match");
+        setTimeout(() => {
+          $("#movingMessage").animate({height:'hide'}, 350);
+        }, 3000);
+        return false;
+    }else{
+        sendAjax('POST', $("#changeForm").attr("action"), $("#changeForm").serialize(), function() {
        
-    });
-    document.querySelector("#changePassword").style.display = "none";
-    document.querySelector("#blocker").style.display = "none";
+        });
+    }
+    
+    
+    hideOverScreen(true);
     return false;
 };
 
 const handleUpgrade = (e) => {
     
-    $("#domoMessage").animate({width:'hide'}, 350);
+    $("#movingMessage").animate({height:'hide'}, 350);
      
     
     sendAjax('POST', '/upgrade', $("#financeForm").serialize(), function() {
     });
-    
+    //window.location.reload();
     return false;
 };
 
+const handleGraph= (total, other, monthly, food, clothing) => {
+    let totalBar = document.querySelector("#barTotal");
+    let otherBar = document.querySelector("#barOther");
+    let monthlyBar = document.querySelector("#barMonthly");
+    let foodBar = document.querySelector("#barFood");
+    let clothingBar = document.querySelector("#barClothing");
+    
+    
+    totalBar.innerHTML = "Total: $" + total.toFixed(2);
+    otherBar.innerHTML = "Other: $" + other.toFixed(2);
+    monthlyBar.innerHTML = "Monthly: $" + monthly.toFixed(2);
+    foodBar.innerHTML = "Food: $" + food.toFixed(2);
+    clothingBar.innerHTML = "Clothing: $" + clothing.toFixed(2);
+    
+    if(total !== 0){
+        totalBar.style.width = '100%';
+        otherBar.style.width = '' + other/total * 100+ '%';
+        monthlyBar.style.width = '' + monthly/total * 100+ '%';
+        foodBar.style.width = '' + food/total * 100+ '%';
+        clothingBar.style.width = '' + clothing/total * 100+ '%';
+    }else{
+        totalBar.style.width = '0%';
+        otherBar.style.width = '0%';
+        monthlyBar.style.width = '0%';
+        foodBar.style.width = '0%';
+        clothingBar.style.width = '0%';
+    }
+    
+    
+}
+
 const createChangeWindow = () => {
-    document.querySelector("#changePassword").style.display = "block";
-    document.querySelector("#blocker").style.display = "block";
+    hideOverScreen(false);
 };
 const handleOnChange = (e) =>{
+    handleGraph(0,0,0,0,0);
     loadFilteredFromServer();
+};
+
+const UpgradePop = (props) => {
+    return(
+        <div>
+        
+            Upgrade to premium today for only $2 USD. You gain access to more options to differentiate types of finances.
+            <br></br>
+            <button id="upgradeSubmit" onClick={handleUpgrade} ><a href = "/">Upgrade</a></button>
+            <button id="exitButton" onClick={() => hideOverScreen(true)}>Exit</button>
+        </div>
+    );
+};
+
+const FinanceGraph = (props) => {
+    return(
+        <div id = "sticky">
+        <h2>Finance Graph:</h2>
+        <div id="barPanel">
+            <div id="barTotal">Total:</div>
+            <div id="barOther">Other:</div>
+            <div id="barMonthly">Monthly:</div>
+            <div id="barFood">Food:</div>
+            <div id="barClothing">Clothing:</div>    
+        </div>     
+        </div>
+        
+    );
 }
 
 const ChangeForm = (props) => {
     return(
+        <div>
       <form id="changeForm" name = "changeForm"
             onSubmit = {handleChange}
             action = "/changePass"
@@ -77,7 +165,8 @@ const ChangeForm = (props) => {
         <input type = "hidden" name = "_csrf" value = {props.csrf}/>
         <input className = "makeChangeSubmit" type = "submit" value = "Change Password" />
         </form>
-  
+        <button id="exitButton" onClick={() => hideOverScreen(true)}>Exit</button>
+    </div>
   );    
 };
 
@@ -165,7 +254,13 @@ const FinanceForm= (props) => {
 };
 
 const FinanceList = function(props) {
+    let total = 0;
+    let other = 0;
+    let monthly = 0;
+    let food = 0;
+    let clothing = 0;
     if(props.finances.length === 0){
+      
       return(
           <div className ="financeList">
               <h3 className = "emptyFinance">No Finances Yet</h3>
@@ -174,6 +269,21 @@ const FinanceList = function(props) {
     };
     
     const financeNodes = props.finances.map(function(finance) {
+            total += finance.amount;
+            switch(finance.type){
+                case "Other":
+                    other += finance.amount
+                    break;
+                case "Monthly":
+                    monthly += finance.amount
+                    break;
+                case "Food":
+                    food += finance.amount
+                    break;
+                case "Clothing":
+                    clothing += finance.amount
+                    break;
+            }
             return(
             <div key={finance._id} className = "finance">
                 
@@ -186,7 +296,7 @@ const FinanceList = function(props) {
         );
          
     });
-    
+    handleGraph(total,other,monthly,food,clothing);
     return(
         <div className ="financeList">
             {financeNodes}
@@ -218,12 +328,12 @@ const loadFinancesFromServer = () => {
 };
 
 const setup = function(csrf){
-    
+    //document.querySelector("#upgradeButton").style.display = "none";
     
     
     ReactDOM.render(
       <ChangeForm csrf={csrf} />,
-      document.querySelector("#changePassword")
+      document.querySelector("#overScreen")
     );
     
     //$("#changeForm").style.display = "none";
@@ -234,10 +344,12 @@ const setup = function(csrf){
            ReactDOM.render(
                 <FinanceFormPremium csrf={csrf} />, document.querySelector("#makeFinance")
            );
+           document.querySelector("#upgradeButton").style.display = "none";
        }else{
            ReactDOM.render(
                <FinanceForm csrf={csrf} />, document.querySelector("#makeFinance")
            );
+           document.querySelector("#upgradeButton").style.display = "block";
        }
     });
     
@@ -252,18 +364,55 @@ const setup = function(csrf){
     
     const changeButton = document.querySelector("#changeButton");
     changeButton.addEventListener("click", (e) => {
+        
+        //const exitButton = document.querySelector("#exitButton");
+        //document.querySelector("#exitButton").addEventListener("click", (e) => {
+        //   e.preventDefault();
+        //   hideOverScreen(true);
+        //   return false;
+        //});
+        
        e.preventDefault();
+        ReactDOM.render(
+          <ChangeForm csrf={csrf} />,
+          document.querySelector("#overScreen")
+        );
        createChangeWindow(csrf);
        return false;
     });
     const upgradeButton = document.querySelector("#upgradeButton");
     upgradeButton.addEventListener("click", (e) => {
-       //e.preventDefault();
-       handleUpgrade();
-       //return false;
+        
+        //const exitButton = document.querySelector("#exitButton");
+        //document.querySelector("#exitButton").addEventListener("click", (e) => {
+        //   e.preventDefault();
+        //   hideOverScreen(true);
+        //   return false;
+        //});
+        
+        ReactDOM.render(
+          <UpgradePop />,
+          document.querySelector("#overScreen")
+        );
+       e.preventDefault();
+       hideOverScreen(false);
+        
+       return false;
     });
     
+    
+    
+    ReactDOM.render(
+        <FinanceGraph />, document.querySelector("#graph")
+    );
+    handleGraph(0,0,0,0,0);
     loadFinancesFromServer();
+    
+    document.querySelector("#barTotal").style.backgroundColor = "#b50000";
+   document.querySelector("#barOther").style.backgroundColor = "#00b500";
+   document.querySelector("#barMonthly").style.backgroundColor = "0000b5";
+    document.querySelector("#barFood").style.backgroundColor = "b5b500";
+    document.querySelector("#barClothing").style.backgroundColor = "b500b5";
 };
 
 const getToken = () => {
@@ -274,6 +423,7 @@ const getToken = () => {
 
 $(document).ready(function() {
    getToken();
-   document.querySelector("#changePassword").style.display = "none";
-    document.querySelector("#blocker").style.display = "none";
+   hideOverScreen(true);
+   
 });
+
