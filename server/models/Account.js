@@ -93,6 +93,7 @@ AccountModel.findByUsername(username, (err, doc) => {
   });
 });
 
+//Update the password and salt of the user
 AccountSchema.statics.updatePass = (name, userObj, callback) => {
   const search = {
     username: name,
@@ -105,6 +106,7 @@ AccountSchema.statics.updatePass = (name, userObj, callback) => {
   return AccountModel.updateOne(search, password, callback);
 };
 
+//Update the premium status of the given user
 AccountSchema.statics.upgrade = (name, callback) => {
   const search = {
     username: name,

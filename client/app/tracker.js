@@ -1,4 +1,4 @@
-//Create a post request with data from the finance form
+//Change wether or not the over screen is displayed
 const hideOverScreen = (state) => {
     if(state){
         document.querySelector("#overScreen").style.display = "none";
@@ -9,6 +9,7 @@ const hideOverScreen = (state) => {
     }
 }
 
+//Create a post request with data from the finance form
 const handleFinance = (e) => {
     e.preventDefault();
     
@@ -29,6 +30,7 @@ const handleFinance = (e) => {
     return false;
 };
 
+//Create a post request with data from the change form
 const handleChange = (e) => {
     e.preventDefault();
     
@@ -61,17 +63,21 @@ const handleChange = (e) => {
     return false;
 };
 
+//Create a post to upgrade the user account to "Premium"
 const handleUpgrade = (e) => {
     
     $("#movingMessage").animate({height:'hide'}, 350);
      
     
+    //Using finance form to acquire csrf token
     sendAjax('POST', '/upgrade', $("#financeForm").serialize(), function() {
     });
-    //window.location.reload();
+    
     return false;
 };
 
+
+//Update the finances graph based on any data that comes in
 const handleGraph= (total, other, monthly, food, clothing) => {
     let totalBar = document.querySelector("#barTotal");
     let otherBar = document.querySelector("#barOther");
@@ -103,14 +109,18 @@ const handleGraph= (total, other, monthly, food, clothing) => {
     
 }
 
+//Show the over screen
 const createChangeWindow = () => {
     hideOverScreen(false);
 };
+
+//Update the finances after the filter has been changed
 const handleOnChange = (e) =>{
     handleGraph(0,0,0,0,0);
     loadFilteredFromServer();
 };
 
+//The React Component for the pop up when upgrade is clicked
 const UpgradePop = (props) => {
     return(
         <div>
@@ -123,6 +133,7 @@ const UpgradePop = (props) => {
     );
 };
 
+//React component for the finance graph
 const FinanceGraph = (props) => {
     return(
         <div id = "sticky">
@@ -139,6 +150,7 @@ const FinanceGraph = (props) => {
     );
 }
 
+//React component for the change password form
 const ChangeForm = (props) => {
     return(
         <div>
@@ -170,6 +182,7 @@ const ChangeForm = (props) => {
   );    
 };
 
+//React component for the filters
 const Filter = (props) => {
   return(
       <div id="reactFilter">
@@ -189,10 +202,8 @@ const Filter = (props) => {
   );  
 };
 
-
+//React Component for premium finance form
 const FinanceFormPremium = (props) => {
-    
-    
     return(
         <form id="financeForm" name = "financeForm"
             onSubmit = {handleFinance}
@@ -223,9 +234,8 @@ const FinanceFormPremium = (props) => {
     );  
 };
 
+//React component for normal finance form
 const FinanceForm= (props) => {
-    
-    
     return(
         <form id="financeForm" name = "financeForm"
             onSubmit = {handleFinance}
@@ -253,6 +263,8 @@ const FinanceForm= (props) => {
     );  
 };
 
+//React component for list of finances
+//Also updates the graph with the incoming list
 const FinanceList = function(props) {
     let total = 0;
     let other = 0;
@@ -304,6 +316,7 @@ const FinanceList = function(props) {
     );
 };
 
+//Filters the finances that come in form the server
 const loadFilteredFromServer = () =>{
     sendAjax('GET', '/getFinances', null, (data) => {
        let filtered = data.finances.filter(function(value,index,arr){
@@ -319,6 +332,7 @@ const loadFilteredFromServer = () =>{
     });
 }
 
+//Gets all the finances from the server
 const loadFinancesFromServer = () => {
     sendAjax('GET', '/getFinances', null, (data) => {
        ReactDOM.render(
@@ -327,18 +341,15 @@ const loadFinancesFromServer = () => {
     });
 };
 
-const setup = function(csrf){
-    //document.querySelector("#upgradeButton").style.display = "none";
-    
+//Set up the React form
+const setup = function(csrf){   
     
     ReactDOM.render(
       <ChangeForm csrf={csrf} />,
       document.querySelector("#overScreen")
-    );
+    );    
     
-    //$("#changeForm").style.display = "none";
-    
-    
+    //Check to see if the user is premium
     sendAjax('GET', '/getPremium', null, (data) => {      
        if(data.premium){
            ReactDOM.render(
@@ -365,13 +376,6 @@ const setup = function(csrf){
     const changeButton = document.querySelector("#changeButton");
     changeButton.addEventListener("click", (e) => {
         
-        //const exitButton = document.querySelector("#exitButton");
-        //document.querySelector("#exitButton").addEventListener("click", (e) => {
-        //   e.preventDefault();
-        //   hideOverScreen(true);
-        //   return false;
-        //});
-        
        e.preventDefault();
         ReactDOM.render(
           <ChangeForm csrf={csrf} />,
@@ -382,13 +386,6 @@ const setup = function(csrf){
     });
     const upgradeButton = document.querySelector("#upgradeButton");
     upgradeButton.addEventListener("click", (e) => {
-        
-        //const exitButton = document.querySelector("#exitButton");
-        //document.querySelector("#exitButton").addEventListener("click", (e) => {
-        //   e.preventDefault();
-        //   hideOverScreen(true);
-        //   return false;
-        //});
         
         ReactDOM.render(
           <UpgradePop />,

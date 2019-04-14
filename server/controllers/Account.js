@@ -15,6 +15,9 @@ const logout = (req, res) => {
   res.redirect('/');
 };
 
+//Checks to see if all fields came in the request
+//Then check to make sure the user is the account owner
+//If so generate a new password and update the users password
 const changePass = (req, res) => {
   const username = `${req.body.username}`;
   const password = `${req.body.pass}`;
@@ -35,21 +38,18 @@ const changePass = (req, res) => {
         salt,
         password: hash,
       };
-      // console.dir(accountData.password);
       return Account.AccountModel.updatePass(username, accountData, (err2) => {
         if (err2) {
           console.dir(err2);
         }
-        // req.session.account.premium = true;
         return res.json({ redirect: '/finance' });
       });
     });
 
-    // return res.json({ redirect: '/maker' });
   });
 };
 
-
+//Login controller
 const login = (request, response) => {
   const req = request;
   const res = response;
@@ -72,6 +72,7 @@ const login = (request, response) => {
   });
 };
 
+//Signup controller
 const signup = (request, response) => {
   const req = request;
   const res = response;
@@ -128,6 +129,7 @@ const getToken = (request, response) => {
   res.json(csrfJSON);
 };
 
+//Check the premium status of the current user
 const getPremium = (request, response) => {
   const req = request;
   const res = response;
@@ -138,6 +140,7 @@ const getPremium = (request, response) => {
   res.json(premium);
 };
 
+//Upgrade the user to premium
 const upgrade = (request, res) => {
   const req = request;
   return Account.AccountModel.upgrade(req.session.account.username, (err) => {

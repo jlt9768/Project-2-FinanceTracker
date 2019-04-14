@@ -1,6 +1,6 @@
 "use strict";
 
-//Create a post request with data from the finance form
+//Change wether or not the over screen is displayed
 var hideOverScreen = function hideOverScreen(state) {
     if (state) {
         document.querySelector("#overScreen").style.display = "none";
@@ -11,6 +11,7 @@ var hideOverScreen = function hideOverScreen(state) {
     }
 };
 
+//Create a post request with data from the finance form
 var handleFinance = function handleFinance(e) {
     e.preventDefault();
 
@@ -31,6 +32,7 @@ var handleFinance = function handleFinance(e) {
     return false;
 };
 
+//Create a post request with data from the change form
 var handleChange = function handleChange(e) {
     e.preventDefault();
 
@@ -58,15 +60,18 @@ var handleChange = function handleChange(e) {
     return false;
 };
 
+//Create a post to upgrade the user account to "Premium"
 var handleUpgrade = function handleUpgrade(e) {
 
     $("#movingMessage").animate({ height: 'hide' }, 350);
 
+    //Using finance form to acquire csrf token
     sendAjax('POST', '/upgrade', $("#financeForm").serialize(), function () {});
-    //window.location.reload();
+
     return false;
 };
 
+//Update the finances graph based on any data that comes in
 var handleGraph = function handleGraph(total, other, monthly, food, clothing) {
     var totalBar = document.querySelector("#barTotal");
     var otherBar = document.querySelector("#barOther");
@@ -95,14 +100,18 @@ var handleGraph = function handleGraph(total, other, monthly, food, clothing) {
     }
 };
 
+//Show the over screen
 var createChangeWindow = function createChangeWindow() {
     hideOverScreen(false);
 };
+
+//Update the finances after the filter has been changed
 var handleOnChange = function handleOnChange(e) {
     handleGraph(0, 0, 0, 0, 0);
     loadFilteredFromServer();
 };
 
+//The React Component for the pop up when upgrade is clicked
 var UpgradePop = function UpgradePop(props) {
     return React.createElement(
         "div",
@@ -128,6 +137,7 @@ var UpgradePop = function UpgradePop(props) {
     );
 };
 
+//React component for the finance graph
 var FinanceGraph = function FinanceGraph(props) {
     return React.createElement(
         "div",
@@ -169,6 +179,7 @@ var FinanceGraph = function FinanceGraph(props) {
     );
 };
 
+//React component for the change password form
 var ChangeForm = function ChangeForm(props) {
     return React.createElement(
         "div",
@@ -222,6 +233,7 @@ var ChangeForm = function ChangeForm(props) {
     );
 };
 
+//React component for the filters
 var Filter = function Filter(props) {
     return React.createElement(
         "div",
@@ -266,8 +278,8 @@ var Filter = function Filter(props) {
     );
 };
 
+//React Component for premium finance form
 var FinanceFormPremium = function FinanceFormPremium(props) {
-
     return React.createElement(
         "form",
         { id: "financeForm", name: "financeForm",
@@ -328,8 +340,8 @@ var FinanceFormPremium = function FinanceFormPremium(props) {
     );
 };
 
+//React component for normal finance form
 var FinanceForm = function FinanceForm(props) {
-
     return React.createElement(
         "form",
         { id: "financeForm", name: "financeForm",
@@ -375,6 +387,8 @@ var FinanceForm = function FinanceForm(props) {
     );
 };
 
+//React component for list of finances
+//Also updates the graph with the incoming list
 var FinanceList = function FinanceList(props) {
     var total = 0;
     var other = 0;
@@ -447,6 +461,7 @@ var FinanceList = function FinanceList(props) {
     );
 };
 
+//Filters the finances that come in form the server
 var loadFilteredFromServer = function loadFilteredFromServer() {
     sendAjax('GET', '/getFinances', null, function (data) {
         var filtered = data.finances.filter(function (value, index, arr) {
@@ -459,21 +474,19 @@ var loadFilteredFromServer = function loadFilteredFromServer() {
     });
 };
 
+//Gets all the finances from the server
 var loadFinancesFromServer = function loadFinancesFromServer() {
     sendAjax('GET', '/getFinances', null, function (data) {
         ReactDOM.render(React.createElement(FinanceList, { finances: data.finances }), document.querySelector("#finances"));
     });
 };
 
+//Set up the React form
 var setup = function setup(csrf) {
-    //document.querySelector("#upgradeButton").style.display = "none";
-
 
     ReactDOM.render(React.createElement(ChangeForm, { csrf: csrf }), document.querySelector("#overScreen"));
 
-    //$("#changeForm").style.display = "none";
-
-
+    //Check to see if the user is premium
     sendAjax('GET', '/getPremium', null, function (data) {
         if (data.premium) {
             ReactDOM.render(React.createElement(FinanceFormPremium, { csrf: csrf }), document.querySelector("#makeFinance"));
@@ -490,13 +503,6 @@ var setup = function setup(csrf) {
     var changeButton = document.querySelector("#changeButton");
     changeButton.addEventListener("click", function (e) {
 
-        //const exitButton = document.querySelector("#exitButton");
-        //document.querySelector("#exitButton").addEventListener("click", (e) => {
-        //   e.preventDefault();
-        //   hideOverScreen(true);
-        //   return false;
-        //});
-
         e.preventDefault();
         ReactDOM.render(React.createElement(ChangeForm, { csrf: csrf }), document.querySelector("#overScreen"));
         createChangeWindow(csrf);
@@ -504,13 +510,6 @@ var setup = function setup(csrf) {
     });
     var upgradeButton = document.querySelector("#upgradeButton");
     upgradeButton.addEventListener("click", function (e) {
-
-        //const exitButton = document.querySelector("#exitButton");
-        //document.querySelector("#exitButton").addEventListener("click", (e) => {
-        //   e.preventDefault();
-        //   hideOverScreen(true);
-        //   return false;
-        //});
 
         ReactDOM.render(React.createElement(UpgradePop, null), document.querySelector("#overScreen"));
         e.preventDefault();
