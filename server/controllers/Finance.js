@@ -1,7 +1,8 @@
 const models = require('../models');
 
 const Finance = models.Finance;
-// console.dir(Finance);
+
+// Render the finance page of the session user
 const financePage = (req, res) => {
   Finance.FinanceModel.findByOwner(req.session.account._id, (err, docs) => {
     if (err) {
@@ -12,6 +13,7 @@ const financePage = (req, res) => {
   });
 };
 
+// Create a new Finance based on the data that was submitted
 const makeFinance = (req, res) => {
   if (!req.body.date || !req.body.item || !req.body.type || !req.body.amount) {
     return res.status(400).json({ error: ' All fields are required' });
@@ -42,6 +44,7 @@ const makeFinance = (req, res) => {
   return financePromise;
 };
 
+// Get all finances of the user
 const getFinances = (request, response) => {
   const req = request;
   const res = response;

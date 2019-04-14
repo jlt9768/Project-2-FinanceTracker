@@ -1,5 +1,6 @@
 "use strict";
 
+//Handle login post request
 var handleLogin = function handleLogin(e) {
     e.preventDefault();
 
@@ -20,6 +21,7 @@ var handleLogin = function handleLogin(e) {
     return false;
 };
 
+//Handle signup post request
 var handleSignup = function handleSignup(e) {
     e.preventDefault();
     $("#movingMessage").animate({ height: 'hide' }, 350);
@@ -43,6 +45,7 @@ var handleSignup = function handleSignup(e) {
     sendAjax('POST', $("#signupForm").attr("action"), $("#signupForm").serialize(), redirect);
 };
 
+//React Component for the login form
 var LoginWindow = function LoginWindow(props) {
     return React.createElement(
         "form",
@@ -69,6 +72,7 @@ var LoginWindow = function LoginWindow(props) {
     );
 };
 
+//React component for the sign up form
 var SignupWindow = function SignupWindow(props) {
     return React.createElement(
         "form",
@@ -107,14 +111,17 @@ var SignupWindow = function SignupWindow(props) {
     );
 };
 
+//Create login window on react DOM
 var createLoginWindow = function createLoginWindow(csrf) {
     ReactDOM.render(React.createElement(LoginWindow, { csrf: csrf }), document.querySelector("#content"));
 };
 
+//Create signup window on react DOM
 var createSignupWindow = function createSignupWindow(csrf) {
     ReactDOM.render(React.createElement(SignupWindow, { csrf: csrf }), document.querySelector("#content"));
 };
 
+//Setup react DOM
 var setup = function setup(csrf) {
     var loginButton = document.querySelector("#loginButton");
     var signupButton = document.querySelector("#signupButton");
